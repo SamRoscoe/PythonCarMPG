@@ -3,7 +3,7 @@ import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 from scipy import stats
-df = pd.read_csv(r'C:\SamProject\USEuropeCars - USEuropeCars.csv')
+df = pd.read_csv(r'C:\SamProject\PythonCarMPG\USEuropeCars - USEuropeCars.csv')
 
 # Cleaning Data
 # Remove 'Asia' region Because there is only one sample 
