@@ -64,8 +64,10 @@ def confidence_interval(data, confidence=0.90):
     return (mean - margin, mean + margin)
 
 # Compute 90% Confidence Interval for Horsepower
-hp_ci = confidence_interval(df['horsepower'], confidence=0.90) 
-print(f"90% Confidence Interval for Horsepower: {hp_ci}")
+for region in df['region'].unique():
+    region_data = df[df['region'] == region]['horsepower']
+    hp_ci = confidence_interval(region_data, confidence=0.95)
+    print(f"95% Confidence Interval for Horsepower in {region}: {hp_ci[0]:.2f} to {hp_ci[1]:.2f}")
 
 # Compute 95% Confidence Interval for Average MPG in each region
 for region in df['region'].unique():          
