@@ -1,0 +1,83 @@
+import pandas as pd
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+from scipy import stats
+df = pd.read_csv(r'C:\SamProject\USEuropeCars - USEuropeCars.csv')
+
+# Cleaning Data
+# Remove 'Asia' region Because there is only one sample 
+df = df[df['region'] != 'Asia'] 
+# Remove outliers
+df = df[df['mpg_before'] < 100] 
+# Drop 'Observation' column
+df.drop(columns=['Observation'], inplace=True)  
+
+                      
+# Adding New Variable 
+# Create new variable: Average MPG (before and after 75,000 miles)
+df['avg_mpg'] = df[['mpg_before', 'mpg_after']].mean(axis=1) 
+# Create new variable: Difference in MPG before and after 75,000 miles to determine if car becomes more efficient over time 
+df['mpg_diff'] = df['mpg_after'] - df['mpg_before'] 
+# Creat new variable: fuel Efficiency ratio 
+df['fuel_efficiency_ratio'] = df['mpg_after'] / df['mpg_before']
+
+# Histogram
+# Horsepower by region
+sns.histplot(data=df, x='horsepower', hue='region', kde=True, bins=20, multiple='stack') 
+plt.title('Horsepower by Region')
+plt.show()
+# MPG before 75,000 miles grouped by region
+sns.histplot(data=df, x='mpg_before', hue='region', kde=True, bins=20, multiple='stack') 
+plt.title('MPG Before by Region')
+plt.show()
+# MPG after 75,000 miles grouped by region
+plt.title('MPG After by Region')
+sns.histplot(data=df, x='mpg_after', hue='region', kde=True, bins=20, multiple='stack') 
+plt.show()
+# Average MPG grouped by region
+sns.histplot(data=df, x='avg_mpg', hue='region', kde=True, bins=20, multiple='stack') 
+plt.title('Average MPG by Region')
+plt.show()
+
+# Scatter Plots
+# Scatter plot comparing MPG before vs. MPG after
+sns.scatterplot(data=df, x='mpg_before', y='mpg_after', hue='region') 
+plt.title('MPG Before vs MPG After')
+plt.show()
+# Scatter plot comparing MPG before vs. Average MPG
+sns.scatterplot(data=df, x='mpg_before', y='avg_mpg', hue='region') 
+plt.title('MPG Before vs Average MPG')
+plt.show()
+# Scatter plot comparing MPG before vs. Horsepower
+sns.scatterplot(data=df, x='mpg_before', y='horsepower', hue='region') 
+plt.title('MPG Before vs Horsepower')
+plt.show()
+
+
+# T-tests (Confidence Intervals)
+def confidence_interval(data, confidence=0.90):
+    mean = np.mean(data)
+# Standard error of the mean
+    sem = stats.sem(data)  
+    margin = sem * stats.t.ppf((1 + confidence) / 2., len(data) - 1)
+    return (mean - margin, mean + margin)
+
+# Compute 90% Confidence Interval for Horsepower
+hp_ci = confidence_interval(df['horsepower'], confidence=0.90) 
+print(f"90% Confidence Interval for Horsepower: {hp_ci}")
+
+# Compute 95% Confidence Interval for Average MPG in each region
+for region in df['region'].unique():          
+    region_data = df[df['region'] == region]['avg_mpg']
+    mpg_ci = confidence_interval(region_data, confidence=0.95)
+    print(f"95% Confidence Interval for AVG MPG in {region}: {mpg_ci}")
+
+# Compute 99% Confidence Interval for MPG Difference
+for region in df['region'].unique():
+    region_data = df[df['region'] == region]['mpg_diff']
+    mpg_diff_ci = confidence_interval(region_data, confidence=0.99)
+    print(f" 99% Confidence Interval for MPG Difference in {region}: {mpg_diff_ci}")
+
+
+
